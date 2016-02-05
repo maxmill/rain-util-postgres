@@ -1,0 +1,14 @@
+sudo: false
+language: node_js
+node_js:
+  - 'stable'
+  - '4.2.1'
+before_install: npm install -g babel-cli
+install: npm install
+
+addons:
+  postgresql: "9.4"
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database rain_dev;' -U postgres
