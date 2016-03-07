@@ -1,6 +1,6 @@
 {
   "name": "rain-util-postgres",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "author": "Max Millien",
   "description": "Generator based, co/koa compatible utility for accessing postgres",
   "repository": {
@@ -10,9 +10,11 @@
   "license": "MIT",
   "main": "./bin",
   "scripts": {
-    "clean": "npm cache clean && rm -rf node_modules bin data",
+    "clean": "npm cache clean && rm -rf node_modules bin",
+    "test": "tape ./test",
     "build": "babel lib -d bin",
-    "test": "tape ./test"
+    "postbuild": "npm run test",
+    "watch": "watch 'npm run build' lib test"
   },
   "keywords": [
     "koa",
@@ -25,12 +27,15 @@
     "generators",
     "bundle",
     "convenience",
-    "toolkit"
+    "toolkit",
+    "schema"
   ],
   "dependencies": {
+    "co": "^4.6.0",
     "pg": "4.4.x",
     "postgres-gen": "0.x",
-    "postgres-gen-dao": "0.x"
+    "postgres-gen-dao": "0.x",
+    "thunkify-wrap": "1.x"
   },
   "devDependencies": {
     "babel": "*",
@@ -39,7 +44,8 @@
     "babel-preset-stage-3": "*",
     "co-tape": "*",
     "tape": "4.x",
-    "tape-catch": "1.x"
+    "tape-catch": "1.x",
+    "watch": "0.17.x"
   },
   "engines": {
     "node": ">= 4.2.0"
