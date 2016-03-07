@@ -3,8 +3,11 @@ const Postgres = require('../bin');
 const coTape = require('co-tape');
 const conn = {host: 'localhost', db: 'rain_dev', user: 'postgres'};
 const $postgres = new Postgres(conn);
+const testTable = 'DROP TABLE IF EXISTS testers; CREATE TABLE testers(id CHARACTER VARYING(40))WITH(OIDS=FALSE);ALTER TABLE testers OWNER TO postgres;';
 
 test('database schema', coTape(function* (t) {
+    yield $postgres.db.query(testTable);
+
     const results = yield $postgres.schema();
     const passed = results && Object.getOwnPropertyNames(results).length > 0;
 
@@ -20,8 +23,7 @@ test('database query rows using SQL', coTape(function* (t) {
     t.end();
 }));
 
-test('database query rows using DAO', coTape(function* (t) {
-    const testTable = 'DROP TABLE IF EXISTS testers; CREATE TABLE testers(id CHARACTER VARYING(40))WITH(OIDS=FALSE);ALTER TABLE testers OWNER TO postgres;';
+test('database findOne/insert row using DAO', coTape(function* (t) {
     yield $postgres.db.query(testTable);
 
     $postgres.table('testers');
