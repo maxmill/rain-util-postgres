@@ -1,4 +1,4 @@
-# rain-util #
+# rain-util-postgres #
 
 [![Build Status](https://travis-ci.org/maxmill/rain-util-postgres.svg?style=flat-square)](https://travis-ci.org/maxmill/rain-util-postgres)
 [![npm](https://img.shields.io/npm/v/rain-util-postgres.svg?style=flat-square)]()
@@ -9,33 +9,42 @@ Generator based, co/koa compatible utility for accessing postgres
 
 ```
 npm i rain-util-postgres
-var $util = require('rain-util-postgres');
+const $Postgres = require('rain-util-postgres');
 ```
 
-### postgres ###
+### data access ###
 queries, data access objects, transactions
 ```
-var conn = { host: 'localhost', db: 'postgres', user: 'postgres', password: 'postgres' };
-var $postgres =  new $util.postgres(conn); // connection string also acceptable
+const conn = { host: 'localhost', db: 'postgres', user: 'postgres', password: 'postgres' };
+const $postgres =  new $Postgres(conn); // connection string also acceptable
 
 if($postgres) {
-  postgres.db.query('SELECT test');
+    
+// create a test table
+        const tableName = 'testers';
+        const testTable = `DROP TABLE IF EXISTS ${tableName}; CREATE TABLE ${tableName}(id CHARACTER VARYING(40))WITH(OIDS=FALSE);ALTER TABLE ${tableName} OWNER TO postgres;`;
+        yield $postgres.db.query(testTable);
 
-  $postgres.table('books');
+// load created table into $postgres object
+        $postgres.table(tableName);
 
-  var b = { author: 'Johnny test', title: 'I Like Books'};
-
-  $postgres.tables.books.upsert(b).then(function() {
-    console.log(b.id + ' - ' + b.createdAt + ' - ' + b.updatedAt); // values are loaded back :)
-  });
-
-  $postgres.db.transaction(function*() {
-    var b = yield $postgres.tables.books.findOne('id = ?', 1);  // b is book with id 1
-    yield $postgres.dao.delete(b); // delete by model throws if more than one row is affected
-    yield $postgres.dao.delete('published > 1967'); // delete by query, returns count
-  });
-
+// add a record
+        const recordId = '4a2b';
+        yield $postgres.tables[`${tableName}`].upsert({id: recordId});
+        
+// find created record using dao
+        const daoRecord = yield  $postgres.tables[`${tableName}`].findOne('id = ?', recordId);
+        
+// find created record using sql
+        const findRecordSQL = `SELECT * FROM ${tableName} WHERE id = '${recordId}'`;
+        const sqlRecord = (yield $postgres.db.query(findRecordSQL)).rows[0];
 }
+```
+
+### schema info ###
+```
+// for each table, provide info on columns, indexes, and constraints
+    const schemaInfo = yield $postgres.schema();
 ```
 
 
